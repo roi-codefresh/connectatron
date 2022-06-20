@@ -10,6 +10,11 @@ if [ "$accountId" == "id" ]; then
     echo "missing accountId"
     exit 1
 fi
+
+if [ "$accountId" == "idstop" ]; then
+    lsof -i :7443 | awk '{if (NR==2) print $2}' | xargs kill
+    exit 0
+fi
 accountId=$1
 
 echo "using context: $currentContext"
