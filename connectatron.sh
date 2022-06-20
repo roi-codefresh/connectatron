@@ -25,9 +25,17 @@ echo "namespace: $namespace"
 
 secretName="vc-$namespace"
 config=$(kubectl get secret -n$namespace -o jsonpath="{.data.config}" $secretName | base64 -d)
-echo "got kubeconfig"
 echo "rewriting host to 'https://$namespace.$namespace.svc' -> 'http://localhost:7443'"
 config=$(echo "$config" | sed s/$namespace\.$namespace\.svc/localhost:7443/)
+
+echo "getting runtime parameters..."
+runtimeSecretName=$(kubectl get secret -n$namespace | grep codefresh-token | awk '{print $1}')
+runtimeToken=$(kubectl get secret -n$namespace $runtimeSecretName -o jsonpath="{.data.token}" | base64 -d)
+runtimeIv=$(kubectl get secret -n$namespace $runtimeSecretName -o jsonpath="{.data.encryptionIV}" | base64 -d)
+
+argocdTokenSecretName=$(kubectl get secret -n$namespace | grep argocd-token | awk '{print $1}')
+argocdToken=$(kubectl get secret -n$namespace $argocdTokenSecretName -o jsonpath="{.data.token}" | base64 -d)
+
 echo "$config" > /tmp/kubeconfig
 
 echo "merging to original kubeconfig"
@@ -39,6 +47,13 @@ echo "switching current context"
 kubectl config use-context Default
 
 echo "---"
+echo "app-proxy config should be:"
+echo "{"
+echo "  \"NAMESPACE\": \"codefresh-default\","
+echo "  \"RUNTIME_TOKEN\": \"$runtimeToken\","
+echo "  \"RUNTIME_STORE_IV\": \"$runtimeIv\","
+echo "  \"ARGO_CD_PASSWORD\": \"$argocdToken\""
+echo "}"
 echo "---"
 echo "run:"
 echo "kubectl port-forward --context $currentContext -n $namespace svc/$namespace 7443:443 &"
