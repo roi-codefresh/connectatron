@@ -51,7 +51,7 @@ kubectl config use-context Default
 echo "==="
 echo "app-proxy config should have:"
 echo "{"
-echo "  \"NAMESPACE\": \"codefresh-default\","
+echo "  \"NAMESPACE\": \"codefresh-hosted\","
 echo "  \"RUNTIME_TOKEN\": \"$runtimeToken\","
 echo "  \"RUNTIME_STORE_IV\": \"$runtimeIv\","
 echo "  \"ARGO_CD_PASSWORD\": \"$argocdInitialAdminPassword\""
