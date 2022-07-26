@@ -3,27 +3,31 @@
 set -o pipefail
 set -e
 
-accountId="id$1"
+account="_$1"
 currentContext=$(kubectl config current-context)
 
-if [ "$accountId" == "id" ]; then
-    echo "missing accountId"
+if [ "$account" == "_" ]; then
+    echo "missing account"
     exit 1
 fi
 
-if [ "$accountId" == "idstop" ]; then
+if [ "$account" == "_stop" ]; then
     echo "killing virtual-cluster port-forward"
     lsof -i :7443 | awk '{if (NR==2) print $2}' | xargs kill || true
     echo "killing argo-cd port-forward"
     lsof -i :8080 | awk '{if (NR==2) print $2}' | xargs kill || true
     exit 0
 fi
-accountId=$1
+account=$1
 
 echo "using context: $currentContext"
-echo "using account id: $accountId"
+echo "using account id/name: $account"
 
-namespace=$(kubectl get release | grep $accountId | grep vcluster | awk '{print $1}' | sed s/-vcluster//)
+echo ""
+runtimeName=$(kubectl get managedruntimes | grep $account | awk '{print $1}')
+echo "found runtime: $runtimeName"
+
+namespace=$(kubectl get namespaces | grep $runtimeName | awk '{print $1}')
 echo "namespace: $namespace"
 
 secretName="vc-$namespace"
