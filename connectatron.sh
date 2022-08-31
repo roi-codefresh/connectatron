@@ -75,10 +75,10 @@ fi
 account=$1
 
 echo "using context: $currentContext"
-echo "using account id/name: $account"
+echo "using account name: $account"
 
 echo ""
-runtimeName=$(kubectl get managedruntimes | grep $account | awk '{print $1}')
+runtimeName=$(kubectl get managedruntimes -l codefresh.io/account-name=$account | grep $account | awk '{print $1}')
 echo "found runtime: $runtimeName"
 
 namespace=$(kubectl get namespaces | grep $runtimeName | awk '{print $1}')

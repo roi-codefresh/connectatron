@@ -6,7 +6,7 @@ connect to a virtual cluster in a managed runtime
 # current context should be host cluster
 
 # with account id or account name
-./connectatron $accountIdOrName
+./connectatron $accountName
 ```
 
 ## Usage for hybrid:
